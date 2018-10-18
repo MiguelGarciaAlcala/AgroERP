@@ -27,26 +27,76 @@ import tools.IOTools;
  *
  * @author alt-j
  */
-public class Insertar_Horario extends javax.swing.JFrame {
+public class Actualizar_Horario extends javax.swing.JFrame {
     HashMap<Integer, Integer> emp;
+    int idHorario;
+    String datos[];
     IOTools txtFormat = new IOTools();
     JTable horarios;
     ConexionSQL con;
     DAO dao;
     
-    public Insertar_Horario(JTable tbl) throws SQLException, IOException {
+    public Actualizar_Horario(JTable tbl, int idHorario) throws SQLException, IOException {
         initComponents();
         this.setLocationRelativeTo(null);
-        
-        spHI.setValue(new Date(-18*60*60*1000));
-        spHF.setValue(new Date(-18*60*60*1000));
         
         con = ConexionSQL.getInstance();
         dao = new DAO(con.getConnection());
         horarios = tbl;
+        this.idHorario = idHorario;
         
-        txtIdHorario.setText(dao.horarios.next());
         emp = dao.empleados.list(cmbEmp);
+        datos = dao.horarios.getH(idHorario);
+        setData();
+    }
+    
+    public void setData() {
+        if(datos != null) { 
+            txtIdHorario.setText(String.format("%03d", idHorario));
+            
+            String hi[] = datos[0].split(":");
+            Calendar cal = Calendar.getInstance();
+            cal.set(Calendar.HOUR_OF_DAY, Integer.valueOf(hi[0]));
+            cal.set(Calendar.MINUTE, Integer.valueOf(hi[1]));
+            cal.set(Calendar.SECOND, 0);
+            cal.set(Calendar.MILLISECOND, 0);
+            spHI.setValue(cal.getTime());
+            
+            String hf[] = datos[1].split(":");
+            cal.set(Calendar.HOUR_OF_DAY, Integer.valueOf(hf[0]));
+            cal.set(Calendar.MINUTE, Integer.valueOf(hf[1]));
+            spHF.setValue(cal.getTime());
+            
+            String dias[] = datos[2].split(",");
+            for(int i=0; i<dias.length; i++) {
+                switch(dias[i]) {
+                    case "Lun":
+                        chbLun.setSelected(true);
+                        break;
+                    case "Mar":
+                        chbMar.setSelected(true);
+                        break;
+                    case "Mie":
+                        chbMie.setSelected(true);
+                        break;
+                    case "Jue":
+                        chbJue.setSelected(true);
+                        break;
+                    case "Vie":
+                        chbVie.setSelected(true);
+                        break;
+                    case "Sab":
+                        chbSab.setSelected(true);
+                        break;
+                    case "Dom":
+                        chbDom.setSelected(true);
+                        break;
+                }
+            }
+            
+            try{cmbEmp.setSelectedItem(String.valueOf(datos[3]));} catch(Exception e){}
+        } else
+            JOptionPane.showMessageDialog(null, "Error al consultar los datos del horario", "Error", 0);
     }
 
     /**
@@ -86,12 +136,12 @@ public class Insertar_Horario extends javax.swing.JFrame {
         jLabel6 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Registrar horario");
+        setTitle("Actualizar horario");
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel5.setFont(new java.awt.Font("Candara", 1, 36)); // NOI18N
         jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel5.setText("Registrar Horario");
+        jLabel5.setText("Actualizar Horario");
         getContentPane().add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(-50, 10, 430, 50));
 
         jLabel1.setFont(new java.awt.Font("Candara", 1, 14)); // NOI18N
@@ -255,14 +305,13 @@ public class Insertar_Horario extends javax.swing.JFrame {
                         }
                         
                         if(!repeat) {
-                            if(dao.horarios.insert(new Horario(hi, hf, day_arr, idEmp))) {
+                            if(dao.horarios.update(new Horario(idHorario, hi, hf, day_arr, idEmp))) {
                                 txtFormat.borrar_tabla(horarios);
                                 dao.horarios.getAll(horarios);
-                                nuevo();
                             }
                         } else
                             JOptionPane.showMessageDialog(null, "Los días " + day_string(rep) +" ya están asignados.\n"
-                                    + "Para actualizarlos ingrese a Horarios > Actualizar o ingrese un horario nuevo.", "Horario existente", 2);
+                                    + "Modifique el horario para actualizarlo.", "Horario existente", 2);
                     } else
                         JOptionPane.showMessageDialog(null, "El formato de hora es incorrecto", "Formato incorrecto", 2);
                 } else
@@ -272,21 +321,7 @@ public class Insertar_Horario extends javax.swing.JFrame {
         } else
             JOptionPane.showMessageDialog(null, "No hay empleados registrados", "Advertencia", 0);
     }//GEN-LAST:event_btnGuardarActionPerformed
-    
-    public void nuevo() {
-        txtIdHorario.setText(dao.horarios.next());
-        spHI.setValue(new Date(-18*60*60*1000));
-        spHF.setValue(new Date(-18*60*60*1000));
-        chbDom.setSelected(false);
-        chbLun.setSelected(false);
-        chbMar.setSelected(false);
-        chbMie.setSelected(false);
-        chbJue.setSelected(false);
-        chbVie.setSelected(false);
-        chbSab.setSelected(false);
-        try {cmbEmp.setSelectedIndex(0);} catch(Exception e) {};
-    }
-    
+     
     public String day_string(ArrayList<String> days) {
         String hr = "";
         int len = days.size() - 1, i=0;
@@ -339,14 +374,46 @@ public class Insertar_Horario extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Insertar_Horario.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Actualizar_Horario.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Insertar_Horario.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Actualizar_Horario.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Insertar_Horario.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Actualizar_Horario.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Insertar_Horario.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Actualizar_Horario.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
         //</editor-fold>
@@ -384,11 +451,11 @@ public class Insertar_Horario extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 try {
-                    new Insertar_Horario(null).setVisible(true);
+                    new Actualizar_Horario(null, 0).setVisible(true);
                 } catch (SQLException ex) {
-                    Logger.getLogger(Insertar_Horario.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(Actualizar_Horario.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (IOException ex) {
-                    Logger.getLogger(Insertar_Horario.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(Actualizar_Horario.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         });

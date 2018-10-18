@@ -506,7 +506,7 @@ CREATE PROCEDURE RecursosHumanos.sp_listEmployees
 AS
 BEGIN TRY
 	SELECT idEmpleado,
-	(apaterno + ' ' + amaterno + ' ' + nombre) AS nombreComp
+	('E' + CONVERT(VARCHAR(100), idEmpleado) + ' - ' + apaterno + ' ' + amaterno + ' ' + nombre) AS nombreComp
 	FROM RecursosHumanos.Empleados
 	WHERE estatus = 'A'
 	ORDER BY nombreComp
@@ -544,13 +544,127 @@ GO
 
 -- HORARIOS
 
+-- Insertar un horario
+CREATE PROCEDURE RecursosHumanos.sp_addSchedule
+@horaInicio VARCHAR(5), @horaFin VARCHAR(5), @dias VARCHAR(30), @emp INT
+AS
+BEGIN TRY
+DECLARE @idHorario INT
+	SELECT @idHorario = MAX(idHorario) + 1 FROM RecursosHumanos.Horarios
+		IF @idHorario IS NULL
+			SET @idHorario = 1
+
+	INSERT INTO RecursosHumanos.Horarios
+	VALUES (@idHorario, @horaInicio, @horaFin, @dias, @emp)
+END TRY
+BEGIN CATCH
+	IF @@ERROR > 0
+		PRINT 'SE PRODUJO UN ERROR: ' + ERROR_MESSAGE()
+END CATCH
+GO
+
+-- Actualizar un horario
+CREATE PROCEDURE RecursosHumanos.sp_updateSchedule
+@idHr INT, @horaInicio VARCHAR(5), @horaFin VARCHAR(5), @dias VARCHAR(30), @emp INT
+AS
+BEGIN TRY
+	UPDATE RecursosHumanos.Horarios
+	SET horaInicio = @horaInicio, horaFin = @horaFin, dias = @dias, idEmpleado = @emp
+	WHERE idHorario = @idHr
+END TRY
+BEGIN CATCH
+	IF @@ERROR > 0
+		PRINT 'SE PRODUJO UN ERROR: ' + ERROR_MESSAGE()
+END CATCH
+GO
+
+select * from RecursosHumanos.Horarios
+
 -- Consulta general
 CREATE PROCEDURE RecursosHumanos.sp_getSchedules
 AS
 BEGIN TRY
-	SELECT H.idHorario, (E.nombre + ' ' + E.apaterno + ' ' + E.amaterno) AS nombreComp, H.horaInicio, H.horaFin, H.dias
+	SELECT H.idHorario, (E.nombre + ' ' + E.apaterno + ' ' + E.amaterno) AS nombreComp,
+	CONVERT(VARCHAR(5), H.horaInicio, 108) AS hi, CONVERT(VARCHAR(5), H.horaFin, 108) AS hf, H.dias
 	FROM RecursosHumanos.Empleados AS E, RecursosHumanos.Horarios as H
 	WHERE E.idEmpleado = H.idEmpleado AND E.estatus = 'A'
+END TRY
+BEGIN CATCH
+	PRINT 'SE PRODUJO UN ERROR: ' + ERROR_MESSAGE()
+END CATCH
+GO
+
+-- Consulta por empleado
+CREATE PROCEDURE RecursosHumanos.sp_getSchedulesEmp
+@idEmp INT, @idH INT
+AS
+BEGIN TRY
+	SELECT idHorario, CONVERT(VARCHAR(5), horaInicio, 108) AS hi, CONVERT(VARCHAR(5), horaFin, 108) AS hf, dias
+	FROM RecursosHumanos.Horarios
+	WHERE idEmpleado = @idEmp AND idHorario <> @idH
+END TRY
+BEGIN CATCH
+	PRINT 'SE PRODUJO UN ERROR: ' + ERROR_MESSAGE()
+END CATCH
+GO
+
+EXEC RecursosHumanos.sp_getSchedulesEmp 1
+
+select * from RecursosHumanos.Empleados
+
+-- Consulta individual
+CREATE PROCEDURE RecursosHumanos.sp_getSchedule
+@idSch INT
+AS
+BEGIN TRY
+	SELECT CONVERT(VARCHAR(5), H.horaInicio, 108) AS hi, CONVERT(VARCHAR(5), H.horaFin, 108) AS hf,
+	H.dias, ('E' + CONVERT(VARCHAR(100), E.idEmpleado) + ' - ' + E.apaterno + ' ' + E.amaterno + ' ' + E.nombre) AS nombreComp,
+	E.idEmpleado as idEm
+	FROM RecursosHumanos.Empleados AS E, RecursosHumanos.Horarios as H
+	WHERE E.idEmpleado = H.idEmpleado AND H.idHorario = @idSch
+END TRY
+BEGIN CATCH
+	PRINT 'SE PRODUJO UN ERROR: ' + ERROR_MESSAGE()
+END CATCH
+GO
+
+exec RecursosHumanos.sp_getSchedule 1
+
+-- Consultar el siguiente horarios
+CREATE PROCEDURE RecursosHumanos.sp_nextSchedule
+AS
+DECLARE @idSch INT
+BEGIN TRY
+	SELECT @idSch = MAX(idHorario) + 1 FROM RecursosHumanos.Horarios
+	IF @idSch IS NULL
+		SET @idSch = 1
+	SELECT @idSch AS sigHorario
+END TRY
+BEGIN CATCH
+	PRINT 'SE PRODUJO UN ERROR: ' + ERROR_MESSAGE()
+END CATCH
+GO
+
+-- Consultar los horarios de un empleado
+CREATE PROCEDURE RecursosHumanos.sp_empSchedules
+@emp INT
+AS
+BEGIN TRY
+	SELECT dias FROM RecursosHumanos.Horarios
+	WHERE idEmpleado = @emp
+END TRY
+BEGIN CATCH
+	PRINT 'SE PRODUJO UN ERROR: ' + ERROR_MESSAGE()
+END CATCH
+GO
+
+-- Eliminar un horario de un empleado
+CREATE PROCEDURE RecursosHumanos.sp_killSchedule
+@hr INT
+AS
+BEGIN TRY
+	DELETE FROM RecursosHumanos.Horarios
+	WHERE idHorario = @hr
 END TRY
 BEGIN CATCH
 	PRINT 'SE PRODUJO UN ERROR: ' + ERROR_MESSAGE()

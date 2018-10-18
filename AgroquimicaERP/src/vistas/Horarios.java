@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 import tools.IOTools;
 
@@ -101,8 +103,15 @@ public class Horarios extends javax.swing.JFrame {
         jButton2.setBackground(new java.awt.Color(243, 243, 243));
         jButton2.setFont(new java.awt.Font("Candara", 1, 12)); // NOI18N
         jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/iconos/srch.png"))); // NOI18N
+        jButton2.setText("  Más información");
         jButton2.setToolTipText("Consulta individual");
-        getContentPane().add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 380, 50, 40));
+        jButton2.setHorizontalAlignment(javax.swing.SwingConstants.LEADING);
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+        getContentPane().add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 380, 160, 40));
 
         txtBuscar.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
@@ -175,7 +184,7 @@ public class Horarios extends javax.swing.JFrame {
         getContentPane().add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 120, 600, 260));
 
         jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/iconos/pexels-photo-707582.jpeg"))); // NOI18N
-        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(-90, 0, 930, 440));
+        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(-290, 0, 930, 440));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -185,21 +194,95 @@ public class Horarios extends javax.swing.JFrame {
     }//GEN-LAST:event_txtBuscarKeyTyped
 
     private void btnInsertarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInsertarActionPerformed
-
+        try {
+            Insertar_Horario ins = new Insertar_Horario(tblHorarios);
+            ins.setVisible(true);
+        } catch (IOException ex) {
+            Logger.getLogger(Deducciones.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(Horarios.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_btnInsertarActionPerformed
 
     private void btnBorrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBorrarActionPerformed
+        DefaultTableModel dm = (DefaultTableModel) tblHorarios.getModel();
 
+        if(dm.getRowCount() > 0)
+        {
+            int r = tblHorarios.getSelectedRow();
+            if(r >= 0)
+            {
+                int ans = JOptionPane.showConfirmDialog(null, 
+                "Se eliminará el horario\n¿Deseas continuar?", "Advertencia", 2);
+
+                if(ans == JOptionPane.YES_OPTION) {
+                    int idH = Integer.valueOf(String.valueOf(dm.getValueAt(r, 0)));
+                    if(dao.horarios.delete(idH)) {
+                        txtFormat.borrar_tabla(tblHorarios);
+                        dao.horarios.getAll(tblHorarios);
+                    } else
+                        JOptionPane.showMessageDialog(null, "Ocurrió un error al eliminar el horario", "Error", 0);
+                }
+            } else
+                JOptionPane.showMessageDialog(null, "Seleccione el horario a eliminar", "No hay registros seleccionados", 2);
+        } else
+            JOptionPane.showMessageDialog(null, "No hay horarios para eliminar", "Error", 0);
     }//GEN-LAST:event_btnBorrarActionPerformed
 
     private void btnActualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActualizarActionPerformed
+        DefaultTableModel dm = (DefaultTableModel) tblHorarios.getModel();
 
+        if(dm.getRowCount() > 0)
+        {
+            int r = tblHorarios.getSelectedRow();
+            if(r >= 0)
+            {
+                int idH = Integer.valueOf(String.valueOf(dm.getValueAt(r, 0)));
+
+                Actualizar_Horario act;
+                try {
+                    act = new Actualizar_Horario(tblHorarios, idH);
+                    act.setVisible(true);
+                } catch (IOException ex) {
+                    Logger.getLogger(Empleados.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (SQLException ex) {
+                    Logger.getLogger(Horarios.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } else
+                JOptionPane.showMessageDialog(null, "Seleccione el horario a actualizar", "No hay horarios seleccionados", 2);
+        } else
+            JOptionPane.showMessageDialog(null, "No hay registros para actualizar", "Advertencia", 2);
     }//GEN-LAST:event_btnActualizarActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         this.dispose();
         menu.setVisible(true);
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        DefaultTableModel dm = (DefaultTableModel) tblHorarios.getModel();
+
+        if(dm.getRowCount() > 0)
+        {
+            int r = tblHorarios.getSelectedRow();
+            if(r >= 0)
+            {
+                int idH = Integer.valueOf(String.valueOf(dm.getValueAt(r, 0)));
+
+                MasInfoHorario hr;
+                try {
+                    hr = new MasInfoHorario(idH);
+                    hr.setVisible(true);
+                } catch (IOException ex) {
+                    Logger.getLogger(Empleados.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (SQLException ex) {
+                    Logger.getLogger(Horarios.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } else
+                JOptionPane.showMessageDialog(null, "Seleccione un horario", "No hay horarios seleccionados", 2);
+        } else
+            JOptionPane.showMessageDialog(null, "No hay horarios registrados", "Advertencia", 2); 
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * @param args the command line arguments
