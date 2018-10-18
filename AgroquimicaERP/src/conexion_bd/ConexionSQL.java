@@ -16,7 +16,7 @@ import java.sql.SQLException;
  */
 public class ConexionSQL {
     
-    private final String url = "jdbc:sqlserver://DESKTOP-ACIMU6N\\localhost:1433;databaseName=AGROQUIMICA_ERP";
+    private final String url = "jdbc:sqlserver://LENOVOPC\\localhost:1433;databaseName=AgroSe";
     private static ConexionSQL ins;
     private Credenciales id;
     private Connection con;

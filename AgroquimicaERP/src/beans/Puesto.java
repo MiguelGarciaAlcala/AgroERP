@@ -10,21 +10,23 @@ package beans;
  * @author Miguel
  */
 public class Puesto {
+
     private int idPuesto;
     private String nombre;
-    private float salarioMinimo;
-    private float salarioMaximo;
+    private double salarioMinimo;
+    private double salarioMaximo;
     private String estatus;
 
-    public Puesto(int idPuesto, String nombre, float salarioMinimo, float salarioMaximo, String estatus) {
+    public Puesto(int idPuesto, String nombre, double salarioMinimo, double salarioMaximo, String estatus) {
         this.idPuesto = idPuesto;
         this.nombre = nombre;
         this.salarioMinimo = salarioMinimo;
         this.salarioMaximo = salarioMaximo;
         this.estatus = estatus;
     }
-    
-    public Puesto(String nombre, float salarioMinimo, float salarioMaximo) {
+
+    public Puesto(int idPuesto, String nombre, double salarioMinimo, double salarioMaximo) {
+        this.idPuesto = idPuesto;
         this.nombre = nombre;
         this.salarioMinimo = salarioMinimo;
         this.salarioMaximo = salarioMaximo;
@@ -38,11 +40,11 @@ public class Puesto {
         return nombre;
     }
 
-    public float getSalarioMinimo() {
+    public double getSalarioMinimo() {
         return salarioMinimo;
     }
 
-    public float getSalarioMaximo() {
+    public double getSalarioMaximo() {
         return salarioMaximo;
     }
 
