@@ -24,7 +24,10 @@ INSERT INTO RecursosHumanos.Ciudades VALUES (3, 'Guadalajara', 2, 'A')
 INSERT INTO RecursosHumanos.Ciudades VALUES (4, 'Sinaloa', 3, 'A')
 
 INSERT INTO Compras.Sucursales VALUES (1, 'AgroZam', '3512347363', 'Juárez Ote.', 'Centro', '59720', 100000, 'A', 1)
+INSERT INTO Compras.Sucursales VALUES (2, 'Suc Sinaloa', '3512347363', 'Melchor Ocampo', 'Centro', '98723', 100000, 'A', 4)
 
+
+select * from RecursosHumanos.Ciudades
 -- =======================
 -- == TABLA DE USUARIOS ==
 -- =======================
@@ -35,14 +38,20 @@ VALUES (1, 'Administrador', 'A'),
 	   (3, 'Trabajador', 'A')
 GO
 
+select * from RecursosHumanos.Empleados
+
 INSERT INTO RecursosHumanos.Empleados
 VALUES
 (1, 'Miguel', 'García', 'Alcalá', 'H', GETDATE(), '1997-05-23', 30000, '5625652624',
 'Soltero', 10, 2, NULL, 'Fco. Godinez 8', 'Ejidal', '50711', 'Primaria Trunca', 99.99, 'A', 2, 3, 1, 1)
 
 INSERT INTO Usuarios.Usuarios
-VALUES ('MiguelSama', 'p4$$w0rd', 'miguel.rand97@gmail.com', 'A', 1, 1)
+VALUES ('JuanchoPerez', '1234.Hola', 'juancho.7991@gmail.com', 'A', 4, 3)
 GO
+
+update Usuarios.Usuarios set estatus = 'A' where idEmpleado = 4
+
+select * from Usuarios.Usuarios
 
 -- Validar si existe un usuario
 CREATE PROCEDURE Usuarios.sp_existsUser
@@ -670,3 +679,185 @@ BEGIN CATCH
 	PRINT 'SE PRODUJO UN ERROR: ' + ERROR_MESSAGE()
 END CATCH
 GO
+
+-- Consultar puestos
+CREATE PROCEDURE RecursosHumanos.sp_getPuestos
+AS
+BEGIN TRY
+	SELECT idPuesto, nombre, salarioMinimo, salarioMaximo
+	from RecursosHumanos.Puestos
+	where estatus = 'A'
+END TRY
+BEGIN CATCH
+	PRINT 'SE PRODUJO UN ERROR: ' + ERROR_MESSAGE()
+END CATCH
+GO
+
+-- Consultar puesto
+CREATE PROCEDURE RecursosHumanos.sp_getPuesto
+@idPuesto INT
+AS
+BEGIN TRY
+	SELECT nombre, salarioMinimo, salarioMaximo from RecursosHumanos.Puestos
+	where idPuesto = @idPuesto
+END TRY
+BEGIN CATCH
+	PRINT 'SE PRODUJO UN ERROR: ' + ERROR_MESSAGE()
+END CATCH
+GO
+
+-- Actualizar puesto
+CREATE PROCEDURE RecursosHumanos.sp_updatePuesto
+@idPuesto INT, @nombre VARCHAR(60), @min FLOAT, @max FLOAT
+AS
+BEGIN TRY
+	UPDATE RecursosHumanos.Puestos SET nombre = @nombre, salarioMinimo = @min, salarioMaximo = @max
+	where idPuesto = @idPuesto
+END TRY
+BEGIN CATCH
+	PRINT 'SE PRODUJO UN ERROR: ' + ERROR_MESSAGE()
+END CATCH
+GO
+
+-- Eliminar puesto
+CREATE PROCEDURE RecursosHumanos.sp_deletePuestos
+@idP INT
+AS
+BEGIN TRY
+	UPDATE RecursosHumanos.Puestos SET estatus = 'B'
+	WHERE idPuesto = @idP
+END TRY
+BEGIN CATCH
+	PRINT 'SE PRODUJO UN ERROR: ' + ERROR_MESSAGE()
+END CATCH
+GO
+
+-- COnsultar puesto por nombre
+CREATE PROCEDURE RecursosHumanos.sp_getPuestoN
+@nombre VARCHAR(60)
+AS
+BEGIN TRY
+	SELECT * FROM RecursosHumanos.Puestos
+	WHERE nombre LIKE '%' + CONVERT(VARCHAR(60), @nombre) +'%'
+END TRY
+BEGIN CATCH
+	PRINT 'SE PRODUJO UN ERROR: ' + ERROR_MESSAGE()
+END CATCH
+GO
+
+
+-- COnsultar deptos.
+CREATE PROCEDURE RecursosHumanos.sp_getDeptos
+AS
+BEGIN TRY
+	SELECT idDepartamento, nombre FROM RecursosHumanos.Departamentos
+	WHERE estatus = 'A'
+END TRY
+BEGIN CATCH
+	PRINT 'SE PRODUJO UN ERROR: ' + ERROR_MESSAGE()
+END CATCH
+GO
+
+CREATE PROCEDURE RecursosHumanos.sp_existsDepto
+@nombre VARCHAR(50)
+AS
+BEGIN TRY
+	SELECT * FROM RecursosHumanos.Departamentos
+	WHERE nombre = @nombre
+END TRY
+BEGIN CATCH
+	PRINT 'SE PRODUJO UN ERROR: ' + ERROR_MESSAGE()
+END CATCH
+GO
+
+-- siguiente depto
+create proc RecursosHumanos.sp_nextDepto
+as
+declare @idD int
+begin try
+	SELECT @idD = MAX(idDepartamento) + 1 FROM RecursosHumanos.Departamentos
+	IF @idD IS NULL
+		SET @idD = 1
+	SELECT @idD AS sigDepto
+end try
+begin catch
+	if @@ERROR > 0
+		print 'Error:'+error_message()
+end catch
+go
+
+-- Agregar depto
+create proc RecursosHumanos.sp_addDep
+@nombre VARCHAR(50)
+as
+declare @idD int
+begin try
+	SELECT @idD = MAX(idDepartamento) + 1 FROM RecursosHumanos.Departamentos
+	IF @idD IS NULL
+		SET @idD = 1
+	
+	INSERT INTO RecursosHumanos.Departamentos VALUES (@idD, @nombre, 'A')
+end try
+begin catch
+	if @@ERROR > 0
+		print 'Error:'+error_message()
+end catch
+go
+
+
+-- Consultar depto
+create proc RecursosHumanos.sp_getDep
+@idD INT
+as
+begin try
+	SELECT nombre from RecursosHumanos.Departamentos
+	where idDepartamento = @idD
+end try
+begin catch
+	if @@ERROR > 0
+		print 'Error:'+error_message()
+end catch
+go
+
+-- Actualizar depto
+create proc RecursosHumanos.sp_updateDep
+@idD INT, @nombre VARCHAR(50)
+as
+begin try
+	UPDATE RecursosHumanos.Departamentos SET nombre = @nombre
+	where idDepartamento = @idD
+end try
+begin catch
+	if @@ERROR > 0
+		print 'Error:'+error_message()
+end catch
+go
+
+-- Eliminar depto
+CREATE PROCEDURE RecursosHumanos.sp_killDep
+@idD INT
+AS
+BEGIN TRY
+	UPDATE RecursosHumanos.Departamentos
+	SET estatus = 'B'
+	WHERE idDepartamento = @idD
+END TRY
+BEGIN CATCH
+	PRINT 'SE PRODUJO UN ERROR: ' + ERROR_MESSAGE()
+END CATCH
+GO
+
+-- Consultar depto por nombre
+CREATE PROCEDURE RecursosHumanos.sp_getDeptN
+@nombre VARCHAR(50)
+AS
+BEGIN TRY
+	SELECT * FROM RecursosHumanos.Departamentos
+	WHERE nombre LIKE '%' + @nombre + '%'
+END TRY
+BEGIN CATCH
+	PRINT 'SE PRODUJO UN ERROR: ' + ERROR_MESSAGE()
+END CATCH
+GO
+
+exec RecursosHumanos.sp_getDeptN ''

@@ -363,8 +363,8 @@ GO
 CREATE TABLE RecursosHumanos.Horarios
 (
 	idHorario	INT 		NOT NULL,
-	horaInicio	DATE 		NOT NULL,
-	horaFin		DATE 		NOT NULL,
+	horaInicio	TIME 		NOT NULL,
+	horaFin		TIME 		NOT NULL,
 	dias		VARCHAR(30) NOT NULL,
 	idEmpleado	INT 		NOT NULL,
 
