@@ -1,0 +1,769 @@
+package vistas;
+
+import conexion_bd.ConexionSQL;
+import dao.DAO;
+import java.awt.Color;
+import java.awt.HeadlessException;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JTable;
+import org.opencv.core.Core;
+import tools.IOTools;
+import beans.Empleado;
+import java.text.ParseException;
+import java.time.LocalDate;
+import java.util.Date;
+
+/**
+ *
+ * @author alt-j
+ */
+public class Actualizar_Empleado extends javax.swing.JFrame {
+    HashMap<Integer, Integer> deptos, ciudades, sucs, puestos;
+    IOTools txtFormat = new IOTools();
+    JTable empleados;
+    ConexionSQL con;
+    String ruta = null;
+    static byte []bytes = null;
+    static boolean file = false;
+    int idEmpleado;
+    Object datos[];
+    static boolean cambioFoto = false;
+    DAO dao;
+    
+    public Actualizar_Empleado(JTable tbl, int idEmpleado) throws SQLException, IOException, ParseException {
+        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+        initComponents();
+        this.setLocationRelativeTo(null);
+        
+        dchFechaCont.getDateEditor().setEnabled(false);
+        dchFechaN.getDateEditor().setEnabled(false);
+        
+        dchFechaCont.getDateEditor().getUiComponent().setBackground(new Color(255, 255, 255));
+        dchFechaN.getDateEditor().getUiComponent().setBackground(new Color(255, 255, 255));
+        
+        con = ConexionSQL.getInstance();
+        dao = new DAO(con.getConnection());
+        empleados = tbl;
+        this.idEmpleado = idEmpleado;
+        
+        txtFormat.limitar_texto(txtNombre, 30);
+        txtFormat.limitar_texto(txtApat, 30);
+        txtFormat.limitar_texto(txtAmat, 30);
+        txtFormat.limitar_texto(txtDireccion, 80);
+        txtFormat.limitar_texto(txtCodigoPo, 5);
+        txtFormat.limitar_texto(txtCol, 50);
+        txtFormat.limitar_texto(txtNss, 10);
+        
+        deptos = dao.deptos.list(cmdDepto);
+        ciudades = dao.ciudades.list(cmbCiudad);
+        sucs = dao.deptos.listSuc(cmbSuc);
+        puestos = dao.puestos.list(cmbPuesto);
+        
+        datos = dao.empleados.get(idEmpleado);
+        this.setData();
+    }
+    
+    public void setData() throws ParseException {
+        if(datos != null) {            
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            
+            txtNombre.setText(String.valueOf(datos[0]));
+            txtApat.setText(String.valueOf(datos[1]));
+            txtAmat.setText(String.valueOf(datos[2]));
+            String sexo = String.valueOf(datos[3]);
+            if(sexo.equals("H"))
+                rdbMasculino.setSelected(true);
+            else
+                rdbFemenino.setSelected(true);
+            dchFechaN.setDate(sdf.parse(String.valueOf(datos[5])));
+            txtDireccion.setText(String.valueOf(datos[12]));
+            txtCodigoPo.setText(String.valueOf(datos[14]));
+            txtCol.setText(String.valueOf(datos[13]));
+            cmbCiudad.setSelectedItem(String.valueOf(datos[20]));
+            txtIdEmpleado.setText(" " + String.format("%03d", idEmpleado));
+            txtNss.setText(String.valueOf(datos[7]));
+            spDiasVacaciones.setValue(Integer.valueOf(String.valueOf(datos[9])));
+            spDiasPermiso.setValue(Integer.valueOf(String.valueOf(datos[10])));
+            dchFechaCont.setDate(sdf.parse(String.valueOf(datos[4])));
+            cmbEsc.setSelectedItem(String.valueOf(datos[15]));
+            spComision.setValue(Float.valueOf(String.valueOf(datos[16])));
+            spSalario.setValue(Float.valueOf(String.valueOf(datos[6])));
+            cmbEdoCivil.setSelectedItem(String.valueOf(datos[8]));
+            cmdDepto.setSelectedItem(String.valueOf(datos[18]));
+            cmbPuesto.setSelectedItem(String.valueOf(datos[17]));
+            cmbSuc.setSelectedItem(String.valueOf(datos[19]));
+            
+            byte []foto = (byte []) datos[11];
+            if(foto != null) {
+                ImageIcon icon =  new ImageIcon(foto);
+                Image img = icon.getImage().getScaledInstance(lblFoto.getWidth(), lblFoto.getHeight(), Image.SCALE_SMOOTH);
+                        
+                ImageIcon ico = new ImageIcon(img);
+                lblFoto.setIcon(ico);
+            } else
+                lblFoto.setIcon(null);
+        } else
+            JOptionPane.showMessageDialog(null, "Error al consultar los datos del empleado", "Error", 0);
+    }
+    
+    
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        buttonGroup1 = new javax.swing.ButtonGroup();
+        fcSeleccionaFoto = new javax.swing.JFileChooser();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel14 = new javax.swing.JLabel();
+        lblFoto = new javax.swing.JLabel();
+        panDatosEmp = new javax.swing.JPanel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        rdbMasculino = new javax.swing.JRadioButton();
+        rdbFemenino = new javax.swing.JRadioButton();
+        jLabel8 = new javax.swing.JLabel();
+        dchFechaN = new com.toedter.calendar.JDateChooser();
+        jLabel15 = new javax.swing.JLabel();
+        txtDireccion = new javax.swing.JTextField();
+        jLabel11 = new javax.swing.JLabel();
+        lblCP = new javax.swing.JLabel();
+        txtCodigoPo = new javax.swing.JTextField();
+        jLabel16 = new javax.swing.JLabel();
+        txtCol = new javax.swing.JTextField();
+        txtAmat = new javax.swing.JTextField();
+        txtApat = new javax.swing.JTextField();
+        txtNombre = new javax.swing.JTextField();
+        cmbCiudad = new javax.swing.JComboBox<>();
+        jPanel1 = new javax.swing.JPanel();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        jLabel10 = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
+        txtNss = new javax.swing.JTextField();
+        spDiasVacaciones = new javax.swing.JSpinner();
+        dchFechaCont = new com.toedter.calendar.JDateChooser();
+        jLabel13 = new javax.swing.JLabel();
+        spDiasPermiso = new javax.swing.JSpinner();
+        jLabel18 = new javax.swing.JLabel();
+        jLabel22 = new javax.swing.JLabel();
+        spComision = new javax.swing.JSpinner();
+        spSalario = new javax.swing.JSpinner();
+        cmbEsc = new javax.swing.JComboBox<>();
+        jLabel1 = new javax.swing.JLabel();
+        txtIdEmpleado = new javax.swing.JTextField();
+        jLabel17 = new javax.swing.JLabel();
+        cmbEdoCivil = new javax.swing.JComboBox<>();
+        jPanel2 = new javax.swing.JPanel();
+        jLabel21 = new javax.swing.JLabel();
+        jLabel23 = new javax.swing.JLabel();
+        jLabel24 = new javax.swing.JLabel();
+        cmdDepto = new javax.swing.JComboBox<>();
+        cmbPuesto = new javax.swing.JComboBox<>();
+        cmbSuc = new javax.swing.JComboBox<>();
+        btnFoto = new javax.swing.JButton();
+        btnFile = new javax.swing.JButton();
+        btnGuardar = new javax.swing.JButton();
+        lblFondo = new javax.swing.JLabel();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Actualizar empleado");
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel5.setFont(new java.awt.Font("Candara", 1, 36)); // NOI18N
+        jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel5.setText("Actualizar Empleado");
+        getContentPane().add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(-40, 10, 430, 50));
+
+        jLabel14.setFont(new java.awt.Font("Candara", 1, 14)); // NOI18N
+        jLabel14.setText("Fotografía:");
+        getContentPane().add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 70, 90, -1));
+
+        lblFoto.setBackground(new java.awt.Color(250, 250, 250));
+        lblFoto.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        lblFoto.setOpaque(true);
+        getContentPane().add(lblFoto, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 90, 260, 220));
+
+        panDatosEmp.setBackground(new java.awt.Color(255, 255, 255));
+        panDatosEmp.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Datos Personales", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
+        panDatosEmp.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel2.setFont(new java.awt.Font("Candara", 1, 14)); // NOI18N
+        jLabel2.setText("Nombre(s):");
+        panDatosEmp.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 27, 90, 30));
+
+        jLabel4.setFont(new java.awt.Font("Candara", 1, 14)); // NOI18N
+        jLabel4.setText("A. Paterno:");
+        panDatosEmp.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 69, 90, 30));
+
+        jLabel7.setFont(new java.awt.Font("Candara", 1, 14)); // NOI18N
+        jLabel7.setText("A. Materno:");
+        panDatosEmp.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 111, 90, 30));
+
+        jLabel3.setFont(new java.awt.Font("Candara", 1, 14)); // NOI18N
+        jLabel3.setText("Sexo:");
+        panDatosEmp.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 152, 90, -1));
+
+        buttonGroup1.add(rdbMasculino);
+        rdbMasculino.setText("Masculino");
+        panDatosEmp.add(rdbMasculino, new org.netbeans.lib.awtextra.AbsoluteConstraints(205, 149, -1, -1));
+
+        buttonGroup1.add(rdbFemenino);
+        rdbFemenino.setText("Femenino");
+        panDatosEmp.add(rdbFemenino, new org.netbeans.lib.awtextra.AbsoluteConstraints(116, 149, -1, -1));
+
+        jLabel8.setFont(new java.awt.Font("Candara", 1, 14)); // NOI18N
+        jLabel8.setText("Fecha Nacim.:");
+        panDatosEmp.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 181, 90, 30));
+
+        dchFechaN.setBackground(new java.awt.Color(255, 255, 255));
+        dchFechaN.setDateFormatString("yyy-MM-dd");
+        panDatosEmp.add(dchFechaN, new org.netbeans.lib.awtextra.AbsoluteConstraints(116, 181, 160, 30));
+
+        jLabel15.setFont(new java.awt.Font("Candara", 1, 14)); // NOI18N
+        jLabel15.setText("Dirección :");
+        panDatosEmp.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 222, 90, 30));
+        panDatosEmp.add(txtDireccion, new org.netbeans.lib.awtextra.AbsoluteConstraints(116, 222, 235, 30));
+
+        jLabel11.setFont(new java.awt.Font("Candara", 1, 14)); // NOI18N
+        jLabel11.setText("Ciudad:");
+        panDatosEmp.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 346, 90, 31));
+
+        lblCP.setFont(new java.awt.Font("Candara", 1, 14)); // NOI18N
+        lblCP.setText("Código Postal:");
+        panDatosEmp.add(lblCP, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 270, 90, -1));
+        panDatosEmp.add(txtCodigoPo, new org.netbeans.lib.awtextra.AbsoluteConstraints(116, 263, 235, 30));
+
+        jLabel16.setFont(new java.awt.Font("Candara", 1, 14)); // NOI18N
+        jLabel16.setText("Colonia:");
+        panDatosEmp.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 304, 90, 31));
+        panDatosEmp.add(txtCol, new org.netbeans.lib.awtextra.AbsoluteConstraints(116, 304, 235, 31));
+
+        txtAmat.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtAmatActionPerformed(evt);
+            }
+        });
+        panDatosEmp.add(txtAmat, new org.netbeans.lib.awtextra.AbsoluteConstraints(116, 110, 235, 30));
+        panDatosEmp.add(txtApat, new org.netbeans.lib.awtextra.AbsoluteConstraints(116, 68, 235, 30));
+        panDatosEmp.add(txtNombre, new org.netbeans.lib.awtextra.AbsoluteConstraints(116, 27, 235, 30));
+
+        cmbCiudad.setBackground(new java.awt.Color(204, 204, 204));
+        panDatosEmp.add(cmbCiudad, new org.netbeans.lib.awtextra.AbsoluteConstraints(116, 346, 235, 31));
+
+        getContentPane().add(panDatosEmp, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 70, 380, 420));
+
+        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Datos Empleado", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
+        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel6.setFont(new java.awt.Font("Candara", 1, 14)); // NOI18N
+        jLabel6.setText("Dias de permiso:");
+        jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 151, 116, 30));
+
+        jLabel9.setFont(new java.awt.Font("Candara", 1, 14)); // NOI18N
+        jLabel9.setText("Escolaridad:");
+        jPanel1.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 233, -1, 28));
+
+        jLabel10.setFont(new java.awt.Font("Candara", 1, 14)); // NOI18N
+        jLabel10.setText("Número Seguro:");
+        jPanel1.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 68, -1, 30));
+
+        jLabel12.setFont(new java.awt.Font("Candara", 1, 14)); // NOI18N
+        jLabel12.setText("Días vacacionales:");
+        jPanel1.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 109, 116, 30));
+        jPanel1.add(txtNss, new org.netbeans.lib.awtextra.AbsoluteConstraints(136, 68, 155, 30));
+
+        spDiasVacaciones.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        spDiasVacaciones.setModel(new javax.swing.SpinnerNumberModel(10, 1, 100, 5));
+        jPanel1.add(spDiasVacaciones, new org.netbeans.lib.awtextra.AbsoluteConstraints(136, 109, 85, 30));
+
+        dchFechaCont.setBackground(new java.awt.Color(255, 255, 255));
+        dchFechaCont.setDateFormatString("yyy-MM-dd");
+        jPanel1.add(dchFechaCont, new org.netbeans.lib.awtextra.AbsoluteConstraints(136, 192, 155, 30));
+
+        jLabel13.setFont(new java.awt.Font("Candara", 1, 14)); // NOI18N
+        jLabel13.setText("Fecha contrato:");
+        jPanel1.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 192, 116, 30));
+
+        spDiasPermiso.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        spDiasPermiso.setModel(new javax.swing.SpinnerNumberModel(5, 1, 100, 5));
+        jPanel1.add(spDiasPermiso, new org.netbeans.lib.awtextra.AbsoluteConstraints(136, 150, 85, 30));
+
+        jLabel18.setFont(new java.awt.Font("Candara", 1, 14)); // NOI18N
+        jLabel18.setText("Salario diario:");
+        jPanel1.add(jLabel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 313, -1, 29));
+
+        jLabel22.setFont(new java.awt.Font("Candara", 1, 14)); // NOI18N
+        jLabel22.setText("% Comisión:");
+        jPanel1.add(jLabel22, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 272, 90, 30));
+
+        spComision.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        spComision.setModel(new javax.swing.SpinnerNumberModel(Float.valueOf(0.0f), Float.valueOf(0.0f), Float.valueOf(100.0f), Float.valueOf(5.0f)));
+        jPanel1.add(spComision, new org.netbeans.lib.awtextra.AbsoluteConstraints(136, 272, 85, 30));
+
+        spSalario.setModel(new javax.swing.SpinnerNumberModel(Float.valueOf(500.0f), Float.valueOf(1.0f), Float.valueOf(5000.0f), Float.valueOf(100.0f)));
+        jPanel1.add(spSalario, new org.netbeans.lib.awtextra.AbsoluteConstraints(136, 312, 85, 29));
+
+        cmbEsc.setBackground(new java.awt.Color(204, 204, 204));
+        cmbEsc.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Primaria", "Secundaria", "Preparatoria", "Licenciatura", "Maestría", "Doctorado", "Post-Doctorado", "Sin Escolaridad" }));
+        jPanel1.add(cmbEsc, new org.netbeans.lib.awtextra.AbsoluteConstraints(136, 233, 155, 29));
+
+        jLabel1.setFont(new java.awt.Font("Candara", 1, 14)); // NOI18N
+        jLabel1.setText("ID Empleado:");
+        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 27, -1, 29));
+
+        txtIdEmpleado.setEditable(false);
+        jPanel1.add(txtIdEmpleado, new org.netbeans.lib.awtextra.AbsoluteConstraints(136, 27, 155, 30));
+
+        jLabel17.setFont(new java.awt.Font("Candara", 1, 14)); // NOI18N
+        jLabel17.setText("Estado civil:");
+        jPanel1.add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 354, 100, 31));
+
+        cmbEdoCivil.setBackground(new java.awt.Color(204, 204, 204));
+        cmbEdoCivil.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Soltero", "Casado", "Divorciado", "Viudo" }));
+        jPanel1.add(cmbEdoCivil, new org.netbeans.lib.awtextra.AbsoluteConstraints(136, 353, 155, 31));
+
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 70, 320, 420));
+
+        jPanel2.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Puesto Trabajo", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
+        jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel21.setFont(new java.awt.Font("Candara", 1, 14)); // NOI18N
+        jLabel21.setText("Departamento:");
+        jPanel2.add(jLabel21, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 27, 98, 30));
+
+        jLabel23.setFont(new java.awt.Font("Candara", 1, 14)); // NOI18N
+        jLabel23.setText("Sucursal:");
+        jPanel2.add(jLabel23, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 110, 90, 29));
+
+        jLabel24.setFont(new java.awt.Font("Candara", 1, 14)); // NOI18N
+        jLabel24.setText("Puesto actual:");
+        jPanel2.add(jLabel24, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 69, 90, 30));
+
+        cmdDepto.setBackground(new java.awt.Color(204, 204, 204));
+        jPanel2.add(cmdDepto, new org.netbeans.lib.awtextra.AbsoluteConstraints(124, 27, 180, 30));
+
+        cmbPuesto.setBackground(new java.awt.Color(204, 204, 204));
+        jPanel2.add(cmbPuesto, new org.netbeans.lib.awtextra.AbsoluteConstraints(124, 68, 180, 31));
+
+        cmbSuc.setBackground(new java.awt.Color(204, 204, 204));
+        jPanel2.add(cmbSuc, new org.netbeans.lib.awtextra.AbsoluteConstraints(124, 110, 180, 30));
+
+        getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 330, 320, 160));
+
+        btnFoto.setIcon(new javax.swing.ImageIcon(getClass().getResource("/iconos/cam.png"))); // NOI18N
+        btnFoto.setToolTipText("Tomar fotografía");
+        btnFoto.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btnFoto.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnFotoActionPerformed(evt);
+            }
+        });
+        getContentPane().add(btnFoto, new org.netbeans.lib.awtextra.AbsoluteConstraints(1060, 90, 50, 50));
+
+        btnFile.setIcon(new javax.swing.ImageIcon(getClass().getResource("/iconos/open.png"))); // NOI18N
+        btnFile.setToolTipText("Importar fotografía");
+        btnFile.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnFileActionPerformed(evt);
+            }
+        });
+        getContentPane().add(btnFile, new org.netbeans.lib.awtextra.AbsoluteConstraints(1060, 140, 50, 50));
+
+        btnGuardar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/iconos/savep.png"))); // NOI18N
+        btnGuardar.setToolTipText("Actualizar empleado");
+        btnGuardar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGuardarActionPerformed(evt);
+            }
+        });
+        getContentPane().add(btnGuardar, new org.netbeans.lib.awtextra.AbsoluteConstraints(1060, 260, 50, 50));
+
+        lblFondo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/iconos/pexels-photo-1353938.jpg"))); // NOI18N
+        getContentPane().add(lblFondo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1140, 540));
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void txtAmatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtAmatActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtAmatActionPerformed
+
+    private void btnFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFileActionPerformed
+        int ret = fcSeleccionaFoto.showOpenDialog(this);
+        if (ret == JFileChooser.APPROVE_OPTION) {
+            this.ruta = fcSeleccionaFoto.getSelectedFile().getAbsolutePath();
+            if(ruta.endsWith(".jpg") || ruta.endsWith(".JPG") || ruta.endsWith(".jpeg") || ruta.endsWith(".JPEG") || ruta.endsWith(".png") || ruta.endsWith(".PNG") || ruta.endsWith(".bmp") || ruta.endsWith(".BMP")){
+                this.get_logo(lblFoto, ruta);
+                cambioFoto = true;
+                file = true;
+            } else {
+                this.ruta = null;
+                JOptionPane.showMessageDialog(null, "Formatos de imagen válidos: JPEG, JPG, PNG y BMP", "Formato de archivo no soportado", 0);
+            }
+        }
+    }//GEN-LAST:event_btnFileActionPerformed
+
+    private void btnFotoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFotoActionPerformed
+        SnapshotAct snpsht = new SnapshotAct(lblFoto);
+        snpsht.setVisible(true);
+    }//GEN-LAST:event_btnFotoActionPerformed
+
+     /**
+     * Verifica si un String es un entero mayor o igual que cero.
+     * @param s Objeto String a validar.
+     * @return Retorna verdadero si el String s es un numéro n >= 0.
+     */
+    public boolean es_entero(String s){
+        try{
+            int n = Integer.valueOf(s);
+            return n >= 0;
+        } catch(Exception e){ }
+            return false;
+    }
+    
+     /**
+     * Verifica si un String es un flotante mayor o igual que cero.
+     * @param s Objeto String a validar.
+     * @return Retorna verdadero si el String s es un numéro n >= 0.
+     */
+    public boolean es_flotante(String s){
+        try{
+            float n = Float.valueOf(s);
+            return n >= 0.0;
+        } catch(Exception e){ }
+            return false;
+    }
+    
+    private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
+        if(cmbCiudad.getItemCount() > 0) {
+            if(cmbSuc.getItemCount() > 0) {
+                if(cmdDepto.getItemCount() > 0) {
+                    if(cmbPuesto.getItemCount() > 0) {
+                                                
+                        String nombre = txtNombre.getText();
+                        String apat = txtApat.getText();
+                        String amat = txtAmat.getText();
+                        boolean fem = rdbFemenino.isSelected();
+                        boolean mas = rdbMasculino.isSelected();
+                        Date fechaN = dchFechaN.getDate();
+                        String dir = txtDireccion.getText();
+                        String cp = txtCodigoPo.getText();
+                        String col = txtCol.getText();
+                        int ciudad = ciudades.get(cmbCiudad.getSelectedIndex());
+                        String nss = txtNss.getText();
+                        String diasV = String.valueOf(spDiasVacaciones.getValue());
+                        String diasP = String.valueOf(spDiasPermiso.getValue());
+                        Date fechaC = dchFechaCont.getDate();
+                        String esc = String.valueOf(cmbEsc.getSelectedItem());
+                        String com = String.valueOf(spComision.getValue());
+                        String sal = String.valueOf(spSalario.getValue());
+                        String est = String.valueOf(cmbEdoCivil.getSelectedItem());
+                        int depto = deptos.get(cmdDepto.getSelectedIndex());
+                        int pu = puestos.get(cmbPuesto.getSelectedIndex());
+                        int suc = sucs.get(cmbSuc.getSelectedIndex());
+                        
+                        boolean flag1 = !nombre.equals("") && !apat.equals("") && !amat.equals("")
+                                        && (fem || mas) && (fechaN != null) && !dir.equals("") &&
+                                        !cp.equals("") && !col.equals("") && !nss.equals("") && (fechaC != null);
+                        
+                        boolean flag2 = es_entero(diasV) && es_entero(diasP) && es_entero(cp) &&
+                                        es_flotante(com) && es_flotante(sal);
+                        
+                        if(flag1) {
+                            if(flag2) {
+                                Date today = new Date();
+                                
+                                boolean flag3 = (compare(fechaC, fechaN) != 0) &&
+                                                ((compare(fechaC, today) < 0) || 
+                                                 (compare(fechaC, today) == 0)) &&
+                                                (compare(fechaN, today) < 0) &&
+                                                (compare(fechaN, fechaC) < 0);
+                                
+                                if(flag3) {
+                                    String sexo = (fem) ? "M" : "H";
+                                    float salario = Float.valueOf(sal);
+                                    float porc = Float.valueOf(com);
+                                    int diasVa = Integer.valueOf(diasV);
+                                    int diasPe = Integer.valueOf(diasP);
+                                    
+                                    float []salPuesto = dao.puestos.salaryRank(pu);
+                                    if(between(salPuesto[0], salPuesto[1], salario)) {
+                                        if(file)
+                                            if(ruta != null)
+                                                bytes = get_image(ruta);
+
+                                        if (cambioFoto)
+                                            datos[11] = bytes;
+
+                                        Empleado emp = new Empleado(idEmpleado, nombre, apat, amat, sexo, fechaC, fechaN, salario, nss, est, diasVa,
+                                                                    diasPe, (byte[]) datos[11], dir, col, cp, esc, porc, "A", depto, pu, ciudad, suc);
+
+                                        int ans = JOptionPane.showConfirmDialog(null, 
+                                            "Se actualizará el empleado\n¿Deseas continuar?", "Advertencia", 2);
+
+                                        if(ans == JOptionPane.YES_OPTION) {
+                                            if(dao.empleados.update(emp)) {
+                                                txtFormat.borrar_tabla(empleados);
+                                                dao.empleados.getAll(empleados);
+                                            } 
+                                        }
+                                    } else {
+                                        String pst = String.valueOf(cmbPuesto.getSelectedItem());
+                                        JOptionPane.showMessageDialog(null, 
+                                                "El salario para el puesto de " + pst + 
+                                                " debe estar en el rango entre $" + salPuesto[0] + 
+                                                " y $" + salPuesto[1] + " diarios.",
+                                                "Advertencia", 2);
+                                    }
+                                } else
+                                    JOptionPane.showMessageDialog(null, "Ingrese fechas válidas", "Advertencia", 2);
+                            } else
+                                JOptionPane.showMessageDialog(null, "Verifique los datos ingresados", "Formato incorrecto", 2);
+                        } else
+                            JOptionPane.showMessageDialog(null, "Debe informar todos los campos requeridos", "Advertencia", 2);
+                    } else
+                        JOptionPane.showMessageDialog(null, "No es posible actualizar el empleado, no hay puestos registrados", "Advertencia", 2);
+                } else
+                    JOptionPane.showMessageDialog(null, "No es posible actualizar el empleado, no hay departamentos registrados", "Advertencia", 2);
+            } else
+                JOptionPane.showMessageDialog(null, "No es posible actualizar el empleado, no hay sucursales registradas", "Advertencia", 2);
+        } else
+            JOptionPane.showMessageDialog(null, "No es posible actualizar el empleado, no hay ciudades registradas", "Advertencia", 2);
+    }//GEN-LAST:event_btnGuardarActionPerformed
+    
+    public boolean between(float a, float b, float c) {
+        return (c <= b) && (c >= a);
+    }
+    
+    public int compare(Date d1, Date d2) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        
+        String f1[] = sdf.format(d1).split("-");
+        String f2[] = sdf.format(d2).split("-");
+        
+        int []a = {Integer.valueOf(f1[0]), Integer.valueOf(f1[1]), Integer.valueOf(f1[2])};
+        int []b = {Integer.valueOf(f2[0]), Integer.valueOf(f2[1]), Integer.valueOf(f2[2])};
+        
+        LocalDate ld1 = LocalDate.of(a[0], a[1], a[2]);
+        LocalDate ld2 = LocalDate.of(b[0], b[1], b[2]);
+        
+        return (ld1.isAfter(ld2)) ? 1 : (ld1.isBefore(ld2)) ? -1 : 0;
+    }
+    
+    public void get_logo(JLabel lbl, String ruta){
+        BufferedImage img;
+        try {
+            img = ImageIO.read(new File(ruta));
+            Image dimg = img.getScaledInstance(lbl.getWidth(), lbl.getHeight(), Image.SCALE_SMOOTH);
+            ImageIcon icon = new ImageIcon(dimg);
+            lbl.setIcon(icon);
+        } catch (Exception e) {
+            lbl.setIcon(null);
+        }
+    }
+    
+    private byte[] get_image(String path) {
+        try {
+            byte []bytes;
+            FileInputStream fis;
+            
+            File img_file = new File(path);
+            fis = new FileInputStream(img_file);
+            int img_len = Integer.parseInt(String.valueOf(img_file.length()));
+            bytes = new byte[img_len];
+            fis.read(bytes, 0, img_len);
+            return bytes;
+        } catch(HeadlessException | IOException e) {
+            JOptionPane.showMessageDialog(null, "Ocurrió un error al abrir la imagen ", "Error", 0);
+        }   return null;
+    }
+    
+    /**
+     * 
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(Actualizar_Empleado.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(Actualizar_Empleado.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(Actualizar_Empleado.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(Actualizar_Empleado.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                try {
+                    new Actualizar_Empleado(null, 0).setVisible(true);
+                } catch (SQLException ex) {
+                    Logger.getLogger(Actualizar_Empleado.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (IOException ex) {
+                    Logger.getLogger(Actualizar_Empleado.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (ParseException ex) {
+                    Logger.getLogger(Actualizar_Empleado.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnFile;
+    private javax.swing.JButton btnFoto;
+    private javax.swing.JButton btnGuardar;
+    private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.JComboBox<String> cmbCiudad;
+    private javax.swing.JComboBox<String> cmbEdoCivil;
+    private javax.swing.JComboBox<String> cmbEsc;
+    private javax.swing.JComboBox<String> cmbPuesto;
+    private javax.swing.JComboBox<String> cmbSuc;
+    private javax.swing.JComboBox<String> cmdDepto;
+    private com.toedter.calendar.JDateChooser dchFechaCont;
+    private com.toedter.calendar.JDateChooser dchFechaN;
+    private javax.swing.JFileChooser fcSeleccionaFoto;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
+    private javax.swing.JLabel jLabel16;
+    private javax.swing.JLabel jLabel17;
+    private javax.swing.JLabel jLabel18;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel21;
+    private javax.swing.JLabel jLabel22;
+    private javax.swing.JLabel jLabel23;
+    private javax.swing.JLabel jLabel24;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JLabel lblCP;
+    private javax.swing.JLabel lblFondo;
+    private javax.swing.JLabel lblFoto;
+    private javax.swing.JPanel panDatosEmp;
+    private javax.swing.JRadioButton rdbFemenino;
+    private javax.swing.JRadioButton rdbMasculino;
+    private javax.swing.JSpinner spComision;
+    private javax.swing.JSpinner spDiasPermiso;
+    private javax.swing.JSpinner spDiasVacaciones;
+    private javax.swing.JSpinner spSalario;
+    private javax.swing.JTextField txtAmat;
+    private javax.swing.JTextField txtApat;
+    private javax.swing.JTextField txtCodigoPo;
+    private javax.swing.JTextField txtCol;
+    private javax.swing.JTextField txtDireccion;
+    private javax.swing.JTextField txtIdEmpleado;
+    private javax.swing.JTextField txtNombre;
+    private javax.swing.JTextField txtNss;
+    // End of variables declaration//GEN-END:variables
+}
