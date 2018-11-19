@@ -21,6 +21,10 @@ public class DAO {
     public DepartamentosDAO deptos;
     public PuestosDAO puestos;
     public HorariosDAO horarios;
+    public NominasDAO nominas;
+    public NominasDeduccionesDAO nominasDeducciones;
+    public NominasPercepcionesDAO nominasPercepciones;
+    public AusenciasJustificadasDAO ausenciasJustificadas;
 
     public DAO(Connection con) {
         this.deducciones = new DeduccionesDAO(con);
@@ -32,5 +36,9 @@ public class DAO {
         this.deptos = new DepartamentosDAO(con);
         this.puestos = new PuestosDAO(con);
         this.horarios = new HorariosDAO(con);
+        this.nominas = new NominasDAO(con);
+        this.nominasDeducciones = new NominasDeduccionesDAO(con);
+        this.nominasPercepciones = new NominasPercepcionesDAO(con);
+        this.ausenciasJustificadas = new AusenciasJustificadasDAO(con);
     }
 }
